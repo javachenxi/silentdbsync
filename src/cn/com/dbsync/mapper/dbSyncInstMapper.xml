@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBSyncInstMapper">
+
+    <resultMap id="TaskInstBeanMap" type="TaskInstBean">
+        <id column="TASK_INST" property="taskInstId"/>
+        <result column="TASK_ID" property="taskId"/>
+        <result column="TASK_NAME" property="taskName"/>
+        <result column="TASK_TYPE" property="taskType"/>
+        <result column="TASK_PARAM" property="taskParam"/>
+        <result column="GENERATE_TIME" property="generateTime"/>
+        <result column="PLAN_TIME" property="planTime"/>
+        <result column="BEGIN_TIME" property="beginTime"/>
+        <result column="END_TIME" property="endTime"/>
+        <result column="TOTAL_WASTE" property="totalWaste"/>
+        <result column="CURRENT_MSG" property="currentMsg"/>
+        <result column="FINISH_RATE" property="finishRate"/>
+        <result column="ERRORMSG" property="errorMsg"/>
+        <result column="STATUS" property="status"/>
+        <result column="SERVER_FLAG" property="serverFlag"/>
+    </resultMap>
+
+    <!-- 新增任务实例记录  -->
+    <insert id="insertTaskInstBean" parameterType="TaskInstBean">
+         insert into PT_DBSYNC_SCHEDULE(TASK_INST,TASK_ID,TASK_NAME,TASK_TYPE,TASK_PARAM,GENERATE_TIME,PLAN_TIME,
+                     BEGIN_TIME,END_TIME,TOTAL_WASTE,CURRENT_MSG,FINISH_RATE,ERRORMSG,STATUS,SERVER_FLAG)
+         VALUES(DBSYNC_SCHEDULE_SEQ.NEXTVAL,#{taskId, jdbcType=NUMERIC},#{taskName, jdbcType=VARCHAR},
+               #{taskType, jdbcType=NUMERIC},#{taskParam, jdbcType=VARCHAR}, sysdate,
+               #{planTime, jdbcType=TIMESTAMP},#{beginTime, jdbcType=TIMESTAMP},#{endTime, jdbcType=TIMESTAMP},
+               #{totalWaste, jdbcType=NUMERIC},#{currentMsg, jdbcType=VARCHAR},#{finishRate, jdbcType=NUMERIC},
+               #{errorMsg, jdbcType=VARCHAR},#{status, jdbcType=NUMERIC},#{serverFlag, jdbcType=VARCHAR} )
+    </insert>
+
+    <!-- 查询配置实例List -->
+    <select id="queryTaskInstListByStatus" parameterType="int" resultMap="TaskInstBeanMap">
+         select * from pt_dbsync_schedule t where t.status=#{status, jdbcType=NUMERIC} and t.PLAN_TIME &lt;= sysdate
+    </select>
+
+    <!-- 查询某种类型的实例是否存在-->
+    <select id="isHaveTaskInst" parameterType="Map" resultType="int">
+        select count(*) as num from pt_dbsync_schedule t
+        where t.task_id = #{taskId}
+        <foreach collection="statusArray" index="index" item="tmpstatus" open="and t.status IN(" separator="," close=")">
+               #{tmpstatus}
+        </foreach>
+
+    </select>
+
+    <!-- 动态SQL查询配置实例List -->
+    <select id="queryDynaTaskInstList" parameterType="TaskInstBean" resultMap="TaskInstBeanMap">
+        select * from pt_dbsync_schedule t
+        <where>
+            <if test="status !=0">
+                t.status=#{status, jdbcType=NUMERIC}
+            </if>
+            <if test="taskType != 0">
+                and t.task_type = #{taskType}
+            </if>
+            <if test="taskId != 0">
+                and t.task_id = #{taskId}
+            </if>
+            <if test="taskInstId != 0">
+                and t.task_inst = #{taskInstId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 更新任务实例状态,依据主键ID -->
+    <update id="updateTaskInstToStatusById" parameterType="Map">
+        update pt_dbsync_schedule t
+            set t.status=#{toStatus, jdbcType=NUMERIC}
+            where t.task_inst=#{taskInst} and t.status=#{orgStatus, jdbcType=NUMERIC}
+    </update>
+
+    <!-- 动态更新任务实例状态,依据主键ID -->
+    <update id="updateDynaTaskInstById" parameterType="TaskInstBean">
+        update pt_dbsync_schedule t
+        <set>
+            <if test="status !=0">
+                t.status=#{status, jdbcType=NUMERIC},
+            </if>
+            <if test="beginTime != null">
+                t.begin_time = #{beginTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="endTime != null">
+                t.end_time = #{endTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="totalWaste != null">
+                t.total_waste = #{totalWaste, jdbcType=NUMERIC},
+            </if>
+            <if test="currentMsg != null">
+                t.current_msg = #{currentMsg, jdbcType=VARCHAR},
+            </if>
+            <if test="finishRate != null">
+                t.finish_rate = #{finishRate, jdbcType=NUMERIC}
+            </if>
+        </set>
+        where t.task_inst=#{taskInstId}
+    </update>
+
+</mapper>
