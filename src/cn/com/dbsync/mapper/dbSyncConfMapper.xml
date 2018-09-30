@@ -45,6 +45,22 @@
 
     </resultMap>
 
+    <resultMap id="ConfTableColumnBeanMap" type="cn.com.dbsync.bean.ConfTableColumnBean">
+        <id column="TASK_ID" property="taskId"/>
+        <result column="SOURCE_TABLE" property="sourceTable"/>
+        <result column="TARGET_TABLE" property="targetTable"/>
+        <result column="SOURCE_DBNAME" property="sourceDbName"/>
+        <result column="TARGET_DBNAME" property="targetDbName"/>
+        <result column="SOURCE_COLUMN" property="sourceColumn"/>
+        <result column="TARGET_COLUMN" property="targetColumn"/>
+        <result column="RELATE_COLUMN" property="relateColumn"/>
+        <result column="DEPEND_TABLE" property="dependTable"/>
+        <result column="INCER_TOKEN" property="incerToken"/>
+        <result column="PKEY_TOKEN" property="pkeyToken"/>
+        <result column="TARGET_COLTYPE" property="targetColtype"/>
+        <result column="COLUMN_ORDER" property="columnOrder"/>
+    </resultMap>
+
     <!-- 同步任务实例日志查询 -->
     <select id="queryTaskInstLogByInstId" parameterType="String" resultMap="TaskInstLogBeanMap">
         select *
@@ -53,14 +69,14 @@
     </select>
 
     <!-- 更新同步任务实例的日志按ID -->
-    <update id="updateTaskInstLogById" parameterType="TaskInstLogBean" >
+    <update id="updateTaskInstLogById" parameterType="TaskInstLogBean" databaseId="oracle">
         update pt_dbsync_taskinstlog t
         set t.taskinst_id=#{taskInstId, jdbcType=VARCHAR},t.sync_status=#{syncStatus, jdbcType=NUMERIC},t.sync_info=#{syncInfo, jdbcType=VARCHAR},t.sync_datasize=#{syncDataSize, jdbcType=NUMERIC},t.sync_date=sysdate,
             t.sync_lastvalue=#{syncLastValue, jdbcType=VARCHAR},t.sync_allsize=#{allSize, jdbcType=NUMERIC} where t.synclog_id=#{syncLogId}
     </update>
 
     <!-- 新增同步任务实例的日志按ID -->
-    <insert id="insertTaskInstLog"  parameterType="TaskInstLogBean" >
+    <insert id="insertTaskInstLog"  parameterType="TaskInstLogBean" databaseId="oracle">
          insert into pt_dbsync_taskinstlog(SYNCLOG_ID,TASKINST_ID,TASK_ID,SYNC_STATUS,
                                            SYNC_DATASIZE,SYNC_INFO,SYNC_DATE,SYNC_LASTVALUE,SYNC_ALLSIZE)
          VALUES(DBSYNC_TASKINSTLOG_SEQ.NEXTVAL,#{taskInstId, jdbcType=VARCHAR},#{taskId, jdbcType=NUMERIC},#{syncStatus, jdbcType=NUMERIC},
@@ -68,7 +84,7 @@
     </insert>
 
     <!-- 新增同步任务实例日志  -->
-    <update id="updateTaskInstLogByInstId" parameterType="TaskInstLogBean">
+    <update id="updateTaskInstLogByInstId" parameterType="TaskInstLogBean" databaseId="oracle">
         merge into pt_dbsync_taskinstlog T
                 USING ( SELECT #{syncLogId} SYNCLOG_ID,#{taskInstId, jdbcType=VARCHAR} TASKINST_ID,#{taskId, jdbcType=NUMERIC} TASK_ID, #{syncStatus, jdbcType=NUMERIC} SYNC_STATUS,#{syncDataSize, jdbcType=NUMERIC} SYNC_DATASIZE,
                 #{syncInfo, jdbcType=VARCHAR} SYNC_INFO,sysdate SYNC_DATE, #{syncLastValue, jdbcType=VARCHAR} SYNC_LASTVALUE FROM DUAL )F
@@ -82,13 +98,13 @@
     </update>
 
     <!-- 更新同步任务最后一次时间与值 -->
-    <update id="updateTaskConfWithLast" parameterType="ConfTaskBean" >
+    <update id="updateTaskConfWithLast" parameterType="ConfTaskBean" databaseId="oracle">
         update pt_dbsync_conftask t set t.sync_lasttime=sysdate,t.sync_lastvalue=#{lastValue, jdbcType=VARCHAR} where t.task_id=#{taskId}
     </update>
 
 
     <!-- 更新同步任务中任务实例计数器 -->
-    <update id="updateTaskConfWithCount" parameterType="ConfTaskBean" >
+    <update id="updateTaskConfWithCount" parameterType="ConfTaskBean" databaseId="oracle">
         update pt_dbsync_conftask t set t.inst_count=#{instCount, jdbcType=NUMERIC} where t.task_id=#{taskId}
     </update>
 
@@ -113,7 +129,7 @@
     </select>
 
     <!-- 查询同步任务表配置依据ID -->
-    <select id="queryDBSyncTableConfById" parameterType="Long" resultType="Map">
+    <select id="queryDBSyncTableConfById" parameterType="Long" resultMap="ConfTableColumnBeanMap">
         SELECT *
         FROM PT_DBSYNC_CONFTABLE T
         WHERE T.TASK_ID=#{taskId}
@@ -122,7 +138,7 @@
 
 
     <!-- 获取系统当前的时间 -->
-    <select id="queryInstanceCurrdate" resultType="String">
+    <select id="queryInstanceCurrdate" resultType="String" databaseId="oracle">
         select to_char(sysdate,'yyyy-mm-dd hh24:mi:ss') from dual
     </select>
 
@@ -132,7 +148,7 @@
     </select>
 
     <!-- 新增同步表的相关SQL -->
-    <insert id="insertConfTableSql"  parameterType="ConfTableSqlBean" >
+    <insert id="insertConfTableSql"  parameterType="ConfTableSqlBean" databaseId="oracle">
         insert into PT_DBSYNC_CONFTABLESQL(TASK_ID,SOURCE_TABLE,TARGET_TABLE,SOURCE_DBNAME, TARGET_DBNAME,
         SRC_SELECTSQL,SRC_SELECTORDERBYSQL, SRC_SHORTSELECTSQL,TAG_DELETESQL,
         TAG_DELETEBYIDSQL,TAG_INSERTSQL,TAG_MINSERTSQL,TAG_UPDATESQL,TAG_SELECTORDERBYSQL)

@@ -1,18 +1,13 @@
 package cn.com.dbsync.service;
 
 import cn.com.dbsync.bean.*;
-import cn.com.dbsync.dao.DAOResult;
-import cn.com.dbsync.dao.DAOResultMetaData;
 import cn.com.dbsync.dao.DBMybatisSimpleTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Administrator on 2017-10-25.
@@ -214,30 +209,30 @@ public class DBSyncConfService extends DBMybatisSimpleTemplate {
      */
     public List<ConfTableBean> getConfTableByTaskId(long taskId) {
         List<ConfTableBean> rootbeanList = new ArrayList<ConfTableBean>();
-        List<Map> mapList = this.select(DBSYNC_TABLECONF_QUERYBYID, taskId);
+        List<ConfTableColumnBean> columnBeanlist = this.select(DBSYNC_TABLECONF_QUERYBYID, taskId);
 
-        if (mapList == null || mapList.isEmpty()) {
+        if (columnBeanlist == null || columnBeanlist.isEmpty()) {
             return null;
         }
 
         List<ConfTableBean> confList = new ArrayList<ConfTableBean>();
         ConfTableBean tempbean = null;
-        Map dataRow = null;
+        ConfTableColumnBean columnBean = null;
 
-        for(int i=0; i<mapList.size(); i++) {
-            dataRow = (Map) mapList.get(i);
+        for(int i=0; i<columnBeanlist.size(); i++) {
+            columnBean = columnBeanlist.get(i);
 
             //第一次进入或是源端表不同，判定为下一个表的配置
-            if (tempbean == null || !tempbean.getSourceTable().equals(dataRow.get("SOURCE_TABLE"))
-                    || !tempbean.getTargetTable().equals(dataRow.get("TARGET_TABLE"))) {
+            if (tempbean == null || !tempbean.getSourceTable().equals(columnBean.getSourceTable())
+                    || !tempbean.getTargetTable().equals(columnBean.getTargetTable())) {
                 tempbean = new ConfTableBean();
-                tempbean.setTaskId(((BigDecimal)dataRow.get("TASK_ID")).longValue());
-                tempbean.setDependTable((String)dataRow.get("DEPEND_TABLE"));
-                tempbean.setRelateColumn((String)dataRow.get("RELATE_COLUMN"));
-                tempbean.setSourceDbName((String)dataRow.get("SOURCE_DBNAME"));
-                tempbean.setSourceTable((String)dataRow.get("SOURCE_TABLE"));
-                tempbean.setTargetDbName((String)dataRow.get("TARGET_DBNAME"));
-                tempbean.setTargetTable((String)dataRow.get("TARGET_TABLE"));
+                tempbean.setTaskId(columnBean.getTaskId());
+                tempbean.setDependTable(columnBean.getDependTable());
+                tempbean.setRelateColumn(columnBean.getRelateColumn());
+                tempbean.setSourceDbName(columnBean.getSourceDbName());
+                tempbean.setSourceTable(columnBean.getSourceTable());
+                tempbean.setTargetDbName(columnBean.getTargetDbName());
+                tempbean.setTargetTable(columnBean.getTargetTable());
 
                 if (tempbean.getDependTable() == null) {
                     rootbeanList.add(tempbean);
@@ -246,13 +241,12 @@ public class DBSyncConfService extends DBMybatisSimpleTemplate {
                 }
             }
 
-            tempbean.addConfColumn((String)dataRow.get("SOURCE_COLUMN"),
-                    (String)dataRow.get("TARGET_COLUMN"),
-                    ((BigDecimal)dataRow.get("INCER_TOKEN")).intValue(),
-                    ((BigDecimal)dataRow.get("PKEY_TOKEN")).intValue(),
+            tempbean.addConfColumn(columnBean.getSourceColumn(), columnBean.getTargetColumn(),
+                    columnBean.getIncerToken(),
+                    columnBean.getPkeyToken(),
                     null,
-                    ((BigDecimal)dataRow.get("TARGET_COLTYPE")).intValue(),
-                    ((BigDecimal)dataRow.get("COLUMN_ORDER")).intValue());
+                    columnBean.getTargetColtype(),
+                    columnBean.getColumnOrder());
         }
 
         //解析主表子表的结构

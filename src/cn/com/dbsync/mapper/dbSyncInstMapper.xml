@@ -21,7 +21,7 @@
     </resultMap>
 
     <!-- 新增任务实例记录  -->
-    <insert id="insertTaskInstBean" parameterType="TaskInstBean">
+    <insert id="insertTaskInstBean" parameterType="TaskInstBean" databaseId="oracle">
          insert into PT_DBSYNC_SCHEDULE(TASK_INST,TASK_ID,TASK_NAME,TASK_TYPE,TASK_PARAM,GENERATE_TIME,PLAN_TIME,
                      BEGIN_TIME,END_TIME,TOTAL_WASTE,CURRENT_MSG,FINISH_RATE,ERRORMSG,STATUS,SERVER_FLAG)
          VALUES(DBSYNC_SCHEDULE_SEQ.NEXTVAL,#{taskId, jdbcType=NUMERIC},#{taskName, jdbcType=VARCHAR},
@@ -32,7 +32,7 @@
     </insert>
 
     <!-- 查询配置实例List -->
-    <select id="queryTaskInstListByStatus" parameterType="int" resultMap="TaskInstBeanMap">
+    <select id="queryTaskInstListByStatus" parameterType="int" resultMap="TaskInstBeanMap" databaseId="oracle">
          select * from pt_dbsync_schedule t where t.status=#{status, jdbcType=NUMERIC} and t.PLAN_TIME &lt;= sysdate
     </select>
 
@@ -47,7 +47,7 @@
     </select>
 
     <!-- 动态SQL查询配置实例List -->
-    <select id="queryDynaTaskInstList" parameterType="TaskInstBean" resultMap="TaskInstBeanMap">
+    <select id="queryDynaTaskInstList" parameterType="TaskInstBean" resultMap="TaskInstBeanMap" databaseId="oracle">
         select * from pt_dbsync_schedule t
         <where>
             <if test="status !=0">
@@ -66,14 +66,14 @@
     </select>
 
     <!-- 更新任务实例状态,依据主键ID -->
-    <update id="updateTaskInstToStatusById" parameterType="Map">
+    <update id="updateTaskInstToStatusById" parameterType="Map" databaseId="oracle">
         update pt_dbsync_schedule t
             set t.status=#{toStatus, jdbcType=NUMERIC}
             where t.task_inst=#{taskInst} and t.status=#{orgStatus, jdbcType=NUMERIC}
     </update>
 
     <!-- 动态更新任务实例状态,依据主键ID -->
-    <update id="updateDynaTaskInstById" parameterType="TaskInstBean">
+    <update id="updateDynaTaskInstById" parameterType="TaskInstBean" databaseId="oracle">
         update pt_dbsync_schedule t
         <set>
             <if test="status !=0">

@@ -4,7 +4,6 @@ import cn.com.dbsync.bean.ConfTaskBean;
 import cn.com.dbsync.bean.TaskInstBean;
 import cn.com.dbsync.service.DBSyncConfService;
 import cn.com.dbsync.service.DBSyncInstService;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -189,10 +188,11 @@ public class GenerateDBSyncTaskRunner extends TaskRunner{
             default:
                 if (tmpConfBean.getSyncCycle() >= 10) {
                     nextdate = new GregorianCalendar();
-                    if (lasttime + tmpConfBean.getSyncCycle() * 1000 < currdate.getTimeInMillis()) {
+                    long nexttimetmp = (tmpConfBean.getSyncCycle()-9) * 1000;
+                    if (lasttime + nexttimetmp < currdate.getTimeInMillis()) {
                         nextdate.setTimeInMillis(currdate.getTimeInMillis());
                     } else {
-                        nextdate.setTimeInMillis(lasttime + tmpConfBean.getSyncCycle() * 1000);
+                        nextdate.setTimeInMillis(lasttime + nexttimetmp);
                     }
                 } else {
                     LOG.warn("未知的任务周期类型 SyncCycle=" + tmpConfBean.getSyncCycle());

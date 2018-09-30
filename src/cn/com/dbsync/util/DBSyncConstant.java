@@ -52,7 +52,16 @@ public interface DBSyncConstant {
         /**
          * DB2 sqldb type.
          */
-        DB2
+        DB2,
+        /**
+         * Mysql 5.7 db
+         */
+        MYSQL,
+
+        /**
+         *  Clickhouse db
+         */
+        CLICKHOUSE
     }
 
 }

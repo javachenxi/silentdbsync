@@ -15,7 +15,6 @@ public class DBSyncInstServiceTest  extends DBSyncTest {
 
     @Test
     public void insertGenDBSyncTaskInst() {
-
         TaskInstBean taskInstBean = dbSyncInstService.insertGenDBSyncTaskInst();
         LOG.info(taskInstBean.getTaskName());
     }

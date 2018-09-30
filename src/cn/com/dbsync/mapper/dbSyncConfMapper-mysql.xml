@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBSyncConfMapper">
+
+    <!-- 更新同步任务实例的日志按ID -->
+    <update id="updateTaskInstLogById" parameterType="TaskInstLogBean" databaseId="mysql">
+        update pt_dbsync_taskinstlog t
+        set t.taskinst_id=#{taskInstId, jdbcType=VARCHAR},t.sync_status=#{syncStatus, jdbcType=INTEGER},t.sync_info=#{syncInfo, jdbcType=VARCHAR},t.sync_datasize=#{syncDataSize, jdbcType=INTEGER},t.sync_date=now(),
+        t.sync_lastvalue=#{syncLastValue, jdbcType=VARCHAR},t.sync_allsize=#{allSize, jdbcType=INTEGER} where t.synclog_id=#{syncLogId}
+    </update>
+
+    <!-- 新增同步任务实例的日志按ID -->
+    <insert id="insertTaskInstLog"  parameterType="TaskInstLogBean" databaseId="mysql">
+        insert into pt_dbsync_taskinstlog(TASKINST_ID,TASK_ID,SYNC_STATUS,SYNC_DATASIZE,SYNC_INFO,SYNC_DATE,SYNC_LASTVALUE,SYNC_ALLSIZE)
+        VALUES(#{taskInstId, jdbcType=VARCHAR},#{taskId, jdbcType=INTEGER},#{syncStatus, jdbcType=INTEGER},
+        #{syncDataSize, jdbcType=INTEGER},#{syncInfo, jdbcType=VARCHAR},now(),#{syncLastValue, jdbcType=VARCHAR},#{allSize, jdbcType=INTEGER})
+    </insert>
+
+    <!-- 新增同步任务实例日志  -->
+    <update id="updateTaskInstLogByInstId" parameterType="TaskInstLogBean" databaseId="mysql">
+        INSERT INTO pt_dbsync_taskinstlog(synclog_id,TASKINST_ID,TASK_ID,SYNC_STATUS,SYNC_DATASIZE,SYNC_INFO,SYNC_DATE,SYNC_LASTVALUE,SYNC_ALLSIZE)
+        VALUES(#{syncLogId},#{taskInstId, jdbcType=VARCHAR},#{taskId, jdbcType=INTEGER},#{syncStatus, jdbcType=INTEGER}, #{syncDataSize, jdbcType=INTEGER},
+        #{syncInfo, jdbcType=VARCHAR},now(),#{syncLastValue, jdbcType=VARCHAR},#{allSize, jdbcType=INTEGER})
+        ON DUPLICATE KEY UPDATE TASKINST_ID=#{taskInstId, jdbcType=VARCHAR}, TASK_ID=#{taskId, jdbcType=INTEGER}, SYNC_STATUS=#{syncStatus, jdbcType=INTEGER},
+        SYNC_DATASIZE=#{syncDataSize, jdbcType=INTEGER},SYNC_INFO=#{syncInfo, jdbcType=VARCHAR},SYNC_DATE=now(),SYNC_LASTVALUE=#{syncLastValue, jdbcType=VARCHAR},
+        SYNC_ALLSIZE=#{allSize, jdbcType=INTEGER}
+
+    </update>
+    <!-- 更新同步任务最后一次时间与值 -->
+    <update id="updateTaskConfWithLast" parameterType="ConfTaskBean" databaseId="mysql">
+        update pt_dbsync_conftask t set t.sync_lasttime=now(),t.sync_lastvalue=#{lastValue, jdbcType=VARCHAR} where t.task_id=#{taskId}
+    </update>
+
+    <!-- 更新同步任务中任务实例计数器 -->
+    <update id="updateTaskConfWithCount" parameterType="ConfTaskBean"  databaseId="mysql">
+        update pt_dbsync_conftask t set t.inst_count=#{instCount, jdbcType=INTEGER} where t.task_id=#{taskId}
+    </update>
+
+    <select id="queryInstanceCurrdate" resultType="String" databaseId="mysql">
+        SELECT DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')
+    </select>
+
+    <!-- 新增同步表的相关SQL -->
+    <insert id="insertConfTableSql"  parameterType="ConfTableSqlBean" databaseId="mysql">
+        insert into PT_DBSYNC_CONFTABLESQL(TASK_ID,SOURCE_TABLE,TARGET_TABLE,SOURCE_DBNAME, TARGET_DBNAME,
+        SRC_SELECTSQL,SRC_SELECTORDERBYSQL, SRC_SHORTSELECTSQL,TAG_DELETESQL,
+        TAG_DELETEBYIDSQL,TAG_INSERTSQL,TAG_MINSERTSQL,TAG_UPDATESQL,TAG_SELECTORDERBYSQL)
+        VALUES(#{taskId},#{sourceTable, jdbcType=VARCHAR},#{targetTable, jdbcType=VARCHAR},#{sourceDbName, jdbcType=VARCHAR}, #{targetDbName, jdbcType=VARCHAR},
+        #{srcSelectSql, jdbcType=VARCHAR},#{srcSelectOrderBySql,jdbcType=VARCHAR},#{srcShortSelectSql, jdbcType=VARCHAR}, #{tagDeleteSql, jdbcType=VARCHAR},
+        #{tagDeleteByIdSql, jdbcType=VARCHAR},#{tagInsertSql, jdbcType=VARCHAR},#{tagMinsertSql, jdbcType=VARCHAR}, #{tagUpdateSql, jdbcType=VARCHAR},
+        #{tagSelectOrderBySql,jdbcType=VARCHAR})
+    </insert>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

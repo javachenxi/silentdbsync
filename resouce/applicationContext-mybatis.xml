@@ -24,10 +24,35 @@
     <!-- 使用数据库连接池注册数据源,引入相关的配置文件 -->
     <import resource="c3p0.xml"/>
 
+    <bean id="dataSource" class="cn.com.dbsync.core.MyBatisDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry value-ref="dataSourcec3p0" key="MYSQL"></entry>
+                <entry value-ref="dataSourcec3p0" key="ORACLE"></entry>
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="dataSourcec3p0"></property>
+    </bean>
+
+    <bean id="vendorProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="Oracle">oracle</prop>
+                <prop key="MySQL">mysql</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="databaseIdProvider" class="org.apache.ibatis.mapping.VendorDatabaseIdProvider">
+        <property name="properties" ref="vendorProperties" />
+    </bean>
+
+
     <!-- 配置SqlSessionFactoryBean -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="configLocation" value="classpath:dbsync.mybatis/globalMapper.xml"/>
+        <property name="databaseIdProvider" ref="databaseIdProvider" />
     </bean>
 
     <!-- 创建mybatis会话template -->

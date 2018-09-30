@@ -16,9 +16,31 @@
         <typeAlias alias="TaskInstBean" type="cn.com.dbsync.bean.TaskInstBean"/>
     </typeAliases>
 
+    <!--environments default="mysql">
+        <environment id="mysql">
+            <transactionManager type="MANAGED">
+            </transactionManager>
+            <dataSource type="cn.com.dbsync.core.MyBatisDataSourceFactory">
+            </dataSource>
+        </environment>
+        <environment id="oracle">
+            <transactionManager type="MANAGED">
+            </transactionManager>
+            <dataSource type="cn.com.dbsync.core.MyBatisDataSourceFactory">
+            </dataSource>
+        </environment>
+    </environments>
+
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql" />
+        <property name="Oracle" value="oracle" />
+    </databaseIdProvider -->
+
     <mappers>
         <mapper resource="cn/com/dbsync/mapper/dbSyncConfMapper.xml"/>
         <mapper resource="cn/com/dbsync/mapper/dbSyncInstMapper.xml"/>
+        <mapper resource="cn/com/dbsync/mapper/dbSyncConfMapper-mysql.xml"/>
+        <mapper resource="cn/com/dbsync/mapper/dbSyncInstMapper-mysql.xml"/>
     </mappers>
 
 </configuration>

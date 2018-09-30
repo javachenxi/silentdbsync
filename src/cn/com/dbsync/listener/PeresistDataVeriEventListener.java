@@ -4,15 +4,14 @@ import cn.com.dbsync.bean.*;
 import cn.com.dbsync.core.DBSyncException;
 import cn.com.dbsync.core.DispatchEventContainer;
 import cn.com.dbsync.dao.*;
-import cn.com.dbsync.service.DBSyncConfService;
 import cn.com.dbsync.util.DBSyncConstant;
-import cn.com.dbsync.util.SpringManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -118,6 +117,7 @@ public class PeresistDataVeriEventListener extends PeresistDataEventListener {
                     columnMetaDatas.length - pksize, columnMetaDatas.length);
         PreparedStatement delPStatement = null, upPStatement = null, inPStatement = null;
         List reslist = daoResult.getFirstSqlResultList();
+        List<List> insertlist = new ArrayList<List>();
         List rowList = null;
         int token = 0;
 
@@ -143,6 +143,7 @@ public class PeresistDataVeriEventListener extends PeresistDataEventListener {
 
                    dbDialect.setPreparedStatementParams(inPStatement, rowList, columnMetaDatas);
                    inPStatement.addBatch();
+                   insertlist.add(rowList);
                    break;
                case PackResultBean.OPT_TOKEN_U:
                    if(upPStatement == null){
@@ -155,16 +156,57 @@ public class PeresistDataVeriEventListener extends PeresistDataEventListener {
             }
         }
 
+        boolean isInsertExcept = false;
+
         if(inPStatement != null){
-            inPStatement.executeBatch();
+            try {
+                inPStatement.executeBatch();
+            }catch (SQLException e){
+                isInsertExcept = true;
+                LOG.error("批量插入失败！SQL=" + confTableBean.getInsertSql(), e);
+            }
         }
 
         if(upPStatement != null){
-            upPStatement.executeBatch();
+            try {
+                upPStatement.executeBatch();
+            }catch (SQLException e){
+                LOG.error("批量更新失败！SQL=" + confTableBean.getUpdateSql(), e);
+            }
         }
 
         if(delPStatement != null){
-            delPStatement.executeBatch();
+            try {
+                delPStatement.executeBatch();
+            }catch (SQLException e){
+                LOG.error("批量删除失败！SQL=" + confTableBean.getDeleteSqlById(), e);
+            }
+        }
+
+        if(isInsertExcept){
+
+            int updateRel = 0;
+            boolean  isBatch = false;
+
+            for(List tmplist: insertlist){
+
+                if(tmplist == null || tmplist.isEmpty()){
+                    continue;
+                }
+
+                dbDialect.setPreparedStatementParams(upPStatement, rowList, columnMetaDatas);
+                updateRel = upPStatement.executeUpdate();
+
+                if(updateRel == 0){
+                    dbDialect.setPreparedStatementParams(inPStatement, rowList, columnMetaDatas);
+                    inPStatement.addBatch();
+                    isBatch = true;
+                }
+
+                if(isBatch){
+                    inPStatement.executeBatch();
+                }
+            }
         }
 
         return rowList;

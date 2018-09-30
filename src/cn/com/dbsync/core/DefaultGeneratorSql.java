@@ -15,16 +15,16 @@ import java.util.List;
  */
 public class DefaultGeneratorSql implements IGeneratorSql{
 
-    private static final String  SELECT_SQL_FROMAT = "SELECT {0} FROM {1} {2} ";
-    private static final String  ORDERBY_SQL_FROMAT = " ORDER BY {0} ";
-    private static final String  DELETE_SQL_FROMAT = "DELETE FROM {0} ";
-    private static final String  INSERT_SQL_FROMAT = "INSERT INTO {0}({1}) VALUES({2}) ";
-    private static final String  UPDATE_SQL_FROMAT = "UPDATE {0} T SET {1} WHERE {2} ";
-    private static final String  MINSERT_SQL_FROMAT = "MERGE INTO {0} T USING (SELECT {1} FROM DUAL)F ON ({2}) " +
+    protected static final String  SELECT_SQL_FROMAT = "SELECT {0} FROM {1} {2} ";
+    protected static final String  ORDERBY_SQL_FROMAT = " ORDER BY {0} ";
+    protected static final String  DELETE_SQL_FROMAT = "DELETE FROM {0} ";
+    protected static final String  INSERT_SQL_FROMAT = "INSERT INTO {0}({1}) VALUES({2}) ";
+    protected static final String  UPDATE_SQL_FROMAT = "UPDATE {0} T SET {1} WHERE {2} ";
+    protected static final String  MINSERT_SQL_FROMAT = "MERGE INTO {0} T USING (SELECT {1} FROM DUAL)F ON ({2}) " +
             "WHEN MATCHED THEN UPDATE SET {3} WHEN NOT MATCHED THEN INSERT({4}) VALUES({5}) ";
-    private List<ConfTableBean> confTableBeanList;
-    private ConfTaskBean confTaskBean;
-    private DBSyncConfService confService;
+    protected List<ConfTableBean> confTableBeanList;
+    protected ConfTaskBean confTaskBean;
+    protected DBSyncConfService confService;
 
     /**
      * Instantiates a new Default generator sql.
@@ -53,11 +53,10 @@ public class DefaultGeneratorSql implements IGeneratorSql{
                 buildsqlForBean(tmpConfTableBean, stringBuilderCreater);
             }
 
-
         }
     }
 
-    private void buildsqlForBean(ConfTableBean confTableBean, StringBuilderCreater stringBuilderCreater ){
+    protected void buildsqlForBean(ConfTableBean confTableBean, StringBuilderCreater stringBuilderCreater ){
 
         List<ConfTableBean.ConfColumn> columns = confTableBean.getColumnList();
         List<ConfTableBean.ConfColumn> pkcolumns = confTableBean.getPkeycols();
@@ -105,9 +104,9 @@ public class DefaultGeneratorSql implements IGeneratorSql{
             if(column.isIncerToken()&&confTaskBean.isIncTask()){
 
                 if(incerWherestr.length() == 0){
-                    incerWherestr.append(" WHERE ").append(column.getSourceColumn()).append(">=? ");
+                    incerWherestr.append(" WHERE ").append(column.getSourceColumn()).append(">? ");
                 }else{
-                    incerWherestr.append(" AND ").append(column.getSourceColumn()).append(">=? ");
+                    incerWherestr.append(" AND ").append(column.getSourceColumn()).append(">? ");
                 }
 
                 if(incerorderbysql.length() == 0){
@@ -143,9 +142,9 @@ public class DefaultGeneratorSql implements IGeneratorSql{
             if(column.isIncerToken()){
 
                 if(incerWherestr.length() == 0){
-                    incerWherestr.append(" WHERE ").append(column.getSourceColumn()).append(">=? ");
+                    incerWherestr.append(" WHERE ").append(column.getSourceColumn()).append(">? ");
                 }else{
-                    incerWherestr.append(" AND ").append(column.getSourceColumn()).append(">=? ");
+                    incerWherestr.append(" AND ").append(column.getSourceColumn()).append(">? ");
                 }
 
                 if(incerorderbysql.length() == 0){
@@ -155,8 +154,6 @@ public class DefaultGeneratorSql implements IGeneratorSql{
                 }
             }
         }
-
-
 
         if(confTaskBean.isIncTask()){
             //有依赖字段是子表，不需要配置增量字段；没有依赖关系是主表，应该在SELECTSQL增加增量字段排序

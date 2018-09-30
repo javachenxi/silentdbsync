@@ -20,8 +20,8 @@ public class IGeneratorSqlTest extends DBSyncTest {
 
     @Test
     public void buildSQL() {
-        ConfTaskBean confTaskBean = dbSyncConfService.getConfTaskByTaskId(10000);
-        List<ConfTableBean> confTableList = dbSyncConfService.getConfTableByTaskId(10000);
+        ConfTaskBean confTaskBean = dbSyncConfService.getConfTaskByTaskId(999);
+        List<ConfTableBean> confTableList = dbSyncConfService.getConfTableByTaskId(999);
 
         IGeneratorSql generatorSql = IGeneratorSqlFactory.getGeneratorSql(confTableList, confTaskBean);
         //解析配置表生成SQL

@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <!-- 一、使用c3p0连接池注册数据源 -->
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+    <bean id="dataSourcec3p0" class="com.mchange.v2.c3p0.ComboPooledDataSource">
         <!-- 基础配置 -->
         <property name="jdbcUrl" value="${jdbc.url}"></property>
         <property name="driverClass" value="${jdbc.driver}"></property>

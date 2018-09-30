@@ -403,7 +403,11 @@ public class OracleDBDialect14 extends DBDialect {
                 }
                 break;
             case Types.INTEGER:
-                prepareStatement.setInt(pIndex, (Integer) paramVal);
+                if(paramVal instanceof Long){
+                    prepareStatement.setLong(pIndex, (Long) paramVal);
+                }else{
+                    prepareStatement.setInt(pIndex, (Integer) paramVal);
+                }
                 break;
             case Types.FLOAT:
                 if (Float.isNaN((Float) paramVal) || Float.isInfinite((Float) paramVal)) {

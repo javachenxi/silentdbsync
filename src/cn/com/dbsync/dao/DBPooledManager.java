@@ -33,7 +33,7 @@ public class DBPooledManager {
 
     private DBSyncConfService dbSyncConfService;
 
-    private static DBPooledManager pooledManager ;
+    private static volatile DBPooledManager pooledManager ;
 
     private DBPooledManager(){
         dbSyncConfService = SpringManager.getInstance().getBeanByType(DBSyncConfService.class);

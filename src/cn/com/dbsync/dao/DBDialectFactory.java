@@ -61,6 +61,12 @@ public class DBDialectFactory {
             case ORACLEDB14:
                 dialect = new OracleDBDialect14(appCharset, dbCharset);
                 break;
+            case MYSQL:
+                dialect = new MysqlDBDialect();
+                break;
+            case CLICKHOUSE:
+                dialect = new ClickhouseDBDialect();
+                break;
             default:
                 dialect = new OracleDBDialect(appCharset, dbCharset);
         }

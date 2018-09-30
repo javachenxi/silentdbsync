@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class PostgreDBDialect extends DBDialect {
 
-    private static final Log log = LogFactory.getLog(OracleDBDialect.class);
+    private static final Log log = LogFactory.getLog(PostgreDBDialect.class);
     private static final Map<String, Integer> TypeToSqlTypeMap = new HashMap<String, Integer>();
     /**
      * The constant SqlTypeToDDLTypeMap.
@@ -304,22 +304,7 @@ public class PostgreDBDialect extends DBDialect {
             case Types.VARCHAR:
             case Types.CHAR:
                 retobj = convertStrCharset(dbCharset, appCharset, resultSet.getString(index));
-                /**
-                 byte[] valstr = resultSet.getBytes(index);
 
-                 if(valstr == null || valstr.length == 0){
-                 break;
-                 }
-
-                 try {
-                 if (ENCODE_ISO.equals(dbCharset)) {
-                 retobj = new String(valstr, ENCODE_GBK);
-                 } else {
-                 retobj = new String(valstr, dbCharset);
-                 }
-                 }catch (Exception e){
-                 log.warn("转化编码异常 encode="+dbCharset, e);
-                 }*/
                 break;
             case Types.DATE:
             case Types.TIMESTAMP:
@@ -354,9 +339,7 @@ public class PostgreDBDialect extends DBDialect {
             case Types.VARCHAR:
                 prepareStatement.setString(pIndex, (String) paramVal);
                 break;
-//            case Types.CHAR:
-//                ((PreparedStatement) prepareStatement).setFixedCHAR(pIndex, (String) paramVal);
-//                break;
+
             case Types.DATE:
             case Types.TIMESTAMP:
                 prepareStatement.setTimestamp(pIndex, (Timestamp) paramVal);
@@ -369,7 +352,11 @@ public class PostgreDBDialect extends DBDialect {
                 }
                 break;
             case Types.INTEGER:
-                prepareStatement.setInt(pIndex, (Integer) paramVal);
+                if(paramVal instanceof Long){
+                    prepareStatement.setLong(pIndex, (Long) paramVal);
+                }else{
+                    prepareStatement.setInt(pIndex, (Integer) paramVal);
+                }
                 break;
             case Types.FLOAT:
                 if (Float.isNaN((Float) paramVal) || Float.isInfinite((Float) paramVal)) {
@@ -385,96 +372,6 @@ public class PostgreDBDialect extends DBDialect {
                     prepareStatement.setBigDecimal(pIndex, (BigDecimal) paramVal);
                 }
                 break;
-//            case Types.BLOB:
-//                BLOB blob = null;
-//                if(paramVal instanceof byte[]){
-//                    byte[] tmpbytes = (byte[])paramVal;
-//                    //prepareStatement.setBytes(pIndex, tmpbytes);
-//                    if(tmpbytes.length < BLOB_STR_MAX ){
-//                        prepareStatement.setBytes(pIndex, tmpbytes);
-//                    }else {
-//                        blob = BLOB.createTemporary(prepareStatement.getConnection(), true, BLOB.DURATION_SESSION);
-//                        writeBlob(blob,tmpbytes, 1);
-//                        prepareStatement.setBlob(pIndex, blob);
-//                    }
-//                }else if(paramVal instanceof File){
-//                    File tmpFile = (File) paramVal;
-//                    FileInputStream inputStream = null;
-//
-//                    try {
-//                        blob = BLOB.createTemporary(prepareStatement.getConnection(), true, BLOB.DURATION_SESSION);
-//                        inputStream = new FileInputStream(tmpFile);
-//                        //按BLOB进行分包保存
-//                        if(tmpFile.length()>BLOB.MAX_CHUNK_SIZE){
-//                            long pos = 1;
-//
-//                            while (tmpFile.length()>pos){
-//                                pos = writeBlob(blob, CommUtil.readInputStream(inputStream, BLOB.MAX_CHUNK_SIZE), pos);
-//                            }
-//
-//                        }else{
-//                            writeBlob(blob, CommUtil.readInputStream(inputStream, (int)tmpFile.length()), 1);
-//                        }
-//                    }catch (Exception e){
-//
-//                    }finally {
-//                        if(inputStream != null){
-//                            try {
-//                                inputStream.close();
-//                            } catch (IOException e) {
-//
-//                            }
-//                        }
-//                    }
-//                    prepareStatement.setBlob(pIndex, blob);
-//                }
-//
-//                break;
-//            case Types.CLOB:
-//                CLOB clob = null;
-//                if(paramVal instanceof String){
-//                    String clobstr = (String) paramVal;
-//                    // prepareStatement.setString(pIndex, clobstr);
-//                    if(clobstr.length() < CLOB_STR_MAX){
-//                        prepareStatement.setString(pIndex, clobstr);
-//                    }else {
-//                        clob = CLOB.createTemporary(prepareStatement.getConnection(), true, CLOB.DURATION_SESSION);
-//                        writeClob(clob, clobstr, 1);
-//                        prepareStatement.setClob(pIndex, clob);
-//                    }
-//                }else if(paramVal instanceof File){
-//                    File tmpFile = (File) paramVal;
-//                    FileReader fileReader = null;
-//
-//                    try {
-//                        clob = CLOB.createTemporary(prepareStatement.getConnection(), true, CLOB.DURATION_SESSION);
-//                        fileReader = new FileReader(tmpFile);
-//                        String tmpStr = CommUtil.readCharacterStream(fileReader, CLOB.MAX_CHUNK_SIZE);
-//
-//                        if(tmpStr !=null &&tmpStr.length()==BLOB.MAX_CHUNK_SIZE){
-//                            long pos = 1;
-//                            while (tmpStr !=null && tmpStr.length() == BLOB.MAX_CHUNK_SIZE){
-//                                pos = writeClob(clob, tmpStr, pos);
-//                                tmpStr = CommUtil.readCharacterStream(fileReader, CLOB.MAX_CHUNK_SIZE);
-//                            }
-//                        }else{
-//                            writeClob(clob, tmpStr, 1);
-//                        }
-//                    }catch (Exception e){
-//
-//                    }finally {
-//                        if(fileReader != null){
-//                            try {
-//                                fileReader.close();
-//                            } catch (IOException e) {
-//
-//                            }
-//                        }
-//                    }
-//                    prepareStatement.setClob(pIndex, clob);
-//                }
-//
-//                break;
             default:
                 prepareStatement.setObject(pIndex, paramVal);
         }

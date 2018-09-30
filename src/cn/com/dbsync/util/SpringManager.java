@@ -16,7 +16,7 @@ public class SpringManager {
 
     private static final String APPCONTEXT_PATH = "classpath:applicationContext-mybatis.xml";
 
-    private static SpringManager springManager = null;
+    private static volatile SpringManager springManager = null;
 
     private ApplicationContext applicationContext = null;
 

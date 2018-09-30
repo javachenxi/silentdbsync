@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DBSyncContext {
     private final static Log LOG = LogFactory.getLog(DBSyncContext.class.getName());
-    private static DispatchEventContainer dispatchEvent = null;
+    private static volatile DispatchEventContainer dispatchEvent = null;
     private static ReentrantLock reenLock = new ReentrantLock();
     private static boolean isStarted = false;
 

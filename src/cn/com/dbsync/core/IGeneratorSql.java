@@ -8,6 +8,6 @@ public interface IGeneratorSql {
     /**
      * Buildsql.
      */
-    public void buildsql();
+    void buildsql();
 
 }
